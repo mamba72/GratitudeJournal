@@ -1,5 +1,8 @@
 //Greeting is the name of the component
 export default function Greeting({user, gratitudes,hasSubmittedToday}) {
+
+    console.log(gratitudes.slice(-1))
+
     return (
         //the return function can only return one html element, so just put it all in a big div.
         
@@ -12,12 +15,14 @@ export default function Greeting({user, gratitudes,hasSubmittedToday}) {
             
             {/* Conditional rendering */}
             {
+                
                 //the && is shorthand for "if true, render the following..."
                 //the question mark is "if true, render this... otherwise render after the colon"
                 hasSubmittedToday ? (
                     //slice function slices the array at the given index. so essentially slice(-1) gets 
                     //an array of the last value in the given array.
-                    <h2>Today you're grateful for {gratitudes.slice(-1)[0]}.</h2>
+                    
+                    <h2>Today you're grateful for {gratitudes.slice(-1)[0].entry}.</h2>
                 ) : (
                     <h2>What are you grateful for today?</h2>
                 )

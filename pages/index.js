@@ -1,42 +1,28 @@
 import Head from 'next/head'
-import Greeting from '../components/Greeting'
-import History from '../components/History'
-import Input from '../components/Input'
 import { useState } from 'react'
 
+import { supabase } from '../utils/supabaseClient'
+import { Auth } from '@supabase/ui'
+import GratitudeApp from '../components/GratitudeApp'
+
+// fetch data function example
+const fetchDataFromSupabase = async () => {
+    let { data, error } = await supabase
+        .from('TABLE_NAME')
+        .select('COLUMN, ANOTHER_COLUMN')
+    if (error) setError(error.message)
+    else {
+        setData(data)
+        setLoading(false)
+    }
+  }
+
+  
 export default function Home() {
 
-  //this is our state object.
-  //basics of this datatype is const [user, setUser] = useState({})
-  //left side is an array and right side is an array.
-  //user is the actual data value, setUser is the updater function. both are returned from useState function
-  //whatever is the argument of the useState function is the default value of user
-  const [user,setUser] = useState(
-    {
-    "name": "Stephen",
-    "email":"stwhite@chapman.edu"
-  })
-  //can hardcode variables here
-  //const for constants
-  //let for variables
-  // const user = {
-  //   "name": "Stephen",
-  //   "email":"stwhite@chapman.edu"
-  // }
-
-  const [gratitudes,setGratitudes] = useState(['my family','pasta','the sun','my dogs'])
-  //let gratitudes = ['my family','pasta','the sun','my dogs']
-
-  //let hasSubmittedToday = true
-  const [hasSubmittedToday,setHasSubmittedToday] = useState(false)
-
-  //create new function to add to the gratitudes array
-  const addGratitude = (entry) => {
-    //the ... deconstructs the array and splits the elements out rather than making a 2D array
-    let newGratitudes = [...gratitudes, entry]
-    setGratitudes(newGratitudes)
-    setHasSubmittedToday(true)
-  }
+  //gets teh logged in user from Auth.UserContextProvider (the parent object in the _app.js file)
+  //if no user is logged in, user will be Null
+  const { user } = Auth.useUser()
 
 
   return (
@@ -48,26 +34,26 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center max-w-7xl">
-        {/* <h1 className="text-6xl font-bold">
-          Hello World!
-          
-        </h1> */}
+        
+        {/* if(user != null) display GratitudeApp; else display auth; */}
+        { user ? ( <div>
+            <GratitudeApp user={user}/>
 
-          {/* we just use the component like an html tag and then put in the value with the given name for the prop */}
-        <Greeting user={user} gratitudes={gratitudes} hasSubmittedToday={hasSubmittedToday}></Greeting>
-        
-        <div className='spacer'/>
-        {
-          //only display the input section if they have not submitted today
-          !hasSubmittedToday &&
-          <Input handleSubmit={addGratitude}></Input>
+            <button className="text-pink-300" onClick={ async () => { 
+              let { error } = await supabase.auth.signOut()
+              if(error) { console.log(error)}
+              }
+            }>
+              Logout
+            </button>
+          </div>
+        ) : (
+          
+            <Auth supabaseClient={supabase} socialLayout="horizontal" socialButtonSize="xlarge" />
+          
+        )
+
         }
-        
-        <div className='spacer'/>
-        <History gratitudes={gratitudes}></History>
-        
-        
-        
       </main>
 
       {/* How to make css in javascript. Just start writing css in the following string */}
